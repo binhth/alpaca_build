@@ -249,7 +249,9 @@
 		<field name="domainIndex" type="String" />
 		<field name="activeStatus" type="int" />
 		<field name="hasTemplateFiles" type="int" />
-		<field name="onlineUrl" type="String" />
+		<field name="onlineUrl" type="String">
+			<hint name="max-length">1000</hint>
+		</field>
 	</model>
 	<model name="org.opencps.servicemgt.model.TemplateFile">
 		<field name="templatefileId" type="long" />
@@ -337,7 +339,9 @@
 		<field name="assignUser" type="boolean" />
 		<field name="actionUserId" type="long" />
 		<field name="requestPayment" type="boolean" />
-		<field name="paymentFee" type="double" />
+		<field name="paymentFee" type="String">
+			<hint name="max-length">300</hint>
+		</field>
 		<field name="generateReceptionNo" type="boolean" />
 		<field name="receptionNoPattern" type="String" />
 		<field name="generateDeadline" type="boolean" />
@@ -441,6 +445,7 @@
 		<field name="finishDatetime" type="Date" />
 		<field name="dossierStatus" type="int" />
 		<field name="dossierSource" type="int" />
+		<field name="keypayRedirectUrl" type="String" />
 	</model>
 	<model name="org.opencps.dossiermgt.model.DossierFile">
 		<field name="dossierFileId" type="long" />
@@ -450,7 +455,7 @@
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
 		<field name="dossierId" type="long" />
-		<field name="uuid" type="String" />
+		<field name="oid" type="String" />
 		<field name="dossierPartId" type="long" />
 		<field name="templateFileNo" type="String" />
 		<field name="groupFileId" type="long" />
@@ -473,6 +478,7 @@
 		<field name="removed" type="int" />
 		<field name="original" type="int" />
 		<field name="syncStatus" type="int" />
+		<field name="version" type="int" />
 	</model>
 	<model name="org.opencps.dossiermgt.model.DossierLog">
 		<field name="dossierLogId" type="long" />
@@ -570,7 +576,7 @@
 		<field name="userId" type="long" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
-		<field name="uuid" type="String" />
+		<field name="oId" type="String" />
 		<field name="dossierId" type="long" />
 		<field name="dossierPartId" type="long" />
 		<field name="displayName" type="String" />
@@ -635,7 +641,7 @@
 		<field name="requestDatetime" type="Date" />
 		<field name="amount" type="double" />
 		<field name="requestNote" type="String" />
-		<field name="paymentOptions" type="int" />
+		<field name="paymentOptions" type="String" />
 		<field name="keypayUrl" type="String" />
 		<field name="keypayTransactionId" type="long">
 			<hint name="max-length">6</hint>

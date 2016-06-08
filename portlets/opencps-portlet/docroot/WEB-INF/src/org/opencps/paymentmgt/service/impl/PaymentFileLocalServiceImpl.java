@@ -17,19 +17,13 @@ package org.opencps.paymentmgt.service.impl;
 import java.util.Date;
 import java.util.List;
 
-import org.opencps.dossiermgt.model.DossierFile;
-
-import java.util.List;
-
-import org.opencps.dossiermgt.model.Dossier;
 import org.opencps.paymentmgt.model.PaymentFile;
 import org.opencps.paymentmgt.service.base.PaymentFileLocalServiceBaseImpl;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.service.ServiceContext;
 
 /**
  * The implementation of the Payment file local service.
@@ -46,6 +40,29 @@ import com.liferay.portal.kernel.util.OrderByComparator;
  * @see org.opencps.paymentmgt.service.PaymentFileLocalServiceUtil
  */
 public class PaymentFileLocalServiceImpl extends PaymentFileLocalServiceBaseImpl {
+	
+	/**
+	 * @param keypayTransactionId
+	 * @return
+	 * @throws PortalException
+	 * @throws SystemException
+	 */
+	public PaymentFile getByTransactionId(long keypayTransactionId)
+	    throws PortalException, SystemException {
+
+		return paymentFilePersistence.fetchByT_I(keypayTransactionId);
+	}
+	
+	/**
+	 * @param keypayGoodCode
+	 * @return
+	 * @throws PortalException
+	 * @throws SystemException
+	 */
+	public PaymentFile getByGoodCode(String keypayGoodCode)
+	    throws PortalException, SystemException {
+		return paymentFilePersistence.fetchByG_C(keypayGoodCode);
+	}
 	
 	/**
 	 * @param dossierId
@@ -143,6 +160,9 @@ public class PaymentFileLocalServiceImpl extends PaymentFileLocalServiceBaseImpl
 		return paymentFilePersistence.fetchByGoodCode(groupId, keypayGoodCode);
 	}
 	
+	public PaymentFile getPaymentFileByMerchantResponse(long keypayTransactionId, String keypayGoodCode, double amount) throws SystemException {
+		return paymentFilePersistence.fetchByMerchantResponse(keypayTransactionId, keypayGoodCode, amount);
+	}
 	
 	/**
 	 * @param dossierId
@@ -162,7 +182,7 @@ public class PaymentFileLocalServiceImpl extends PaymentFileLocalServiceBaseImpl
 	    long dossierId, long fileGroupId, long ownerUserId,
 	    long ownerOrganizationId, long govAgencyOrganizationId,
 	    String paymentName, Date requestDatetime, Double amount,
-	    String requestNote, String placeInfo)
+	    String requestNote, String placeInfo, String paymentOptions)
 	    throws SystemException {
 
 		long paymentFileId =
@@ -171,18 +191,10 @@ public class PaymentFileLocalServiceImpl extends PaymentFileLocalServiceBaseImpl
 
 		Date now = new Date();
 
-		// paymentFile.setUserId(userId);
-
-		// paymentFile.setGroupId(serviceContext.getScopeGroupId());
-
-		// paymentFile.setCompanyId(serviceContext.getCompanyId());
 
 		paymentFile.setCreateDate(now);
 
 		paymentFile.setModifiedDate(now);
-		// paymentFile
-		// .setUuid(PortalUUIDUtil
-		// .generate());
 
 		paymentFile.setDossierId(dossierId);
 		paymentFile.setFileGroupId(fileGroupId);
@@ -194,14 +206,38 @@ public class PaymentFileLocalServiceImpl extends PaymentFileLocalServiceBaseImpl
 		paymentFile.setRequestNote(requestNote);
 		paymentFile.setPlaceInfo(placeInfo);
 		paymentFile.setPaymentStatus(0);
-
-		// govAgencyOrganizationId > 0 insert
-		// paymentFile.setGovAgencyTaxNo(govAgencyTaxNo);
-		// paymentFile.setInvoiceTemplateNo(invoiceTemplateNo);
-		// paymentFile.setInvoiceIssueNo(invoiceIssueNo);
-		// paymentFile.setInvoiceNo(invoiceNo);
+		paymentFile.setPaymentOptions(paymentOptions);
 
 		return paymentFilePersistence.update(paymentFile);
+	}
+	
+	/**
+	 * @param paymentFileId
+	 * @param keypayUrl
+	 * @param keypayTransactionId
+	 * @param keypayGoodCode
+	 * @param keypayMerchantCode
+	 * @return
+	 * @throws PortalException
+	 * @throws SystemException
+	 */
+	public PaymentFile updatePaymentFile(
+	    long paymentFileId, String keypayUrl, long keypayTransactionId,
+	    String keypayGoodCode, String keypayMerchantCode)
+	    throws PortalException, SystemException {
+
+		PaymentFile paymentFile =
+		    paymentFilePersistence.fetchByPrimaryKey(paymentFileId);
+		
+		paymentFile.setKeypayUrl(keypayUrl);
+		paymentFile.setKeypayTransactionId(keypayTransactionId);
+		paymentFile.setKeypayGoodCode(keypayGoodCode);
+		paymentFile.setKeypayMerchantCode(keypayMerchantCode);
+		
+		paymentFilePersistence.update(paymentFile);
+		
+		return paymentFile;
+
 	}
 
 }
