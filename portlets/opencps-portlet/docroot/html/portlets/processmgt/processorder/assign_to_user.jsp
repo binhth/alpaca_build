@@ -1,4 +1,6 @@
-
+<%@page import="org.opencps.dossiermgt.service.DossierFileLocalServiceUtil"%>
+<%@page import="org.opencps.processmgt.model.WorkflowOutput"%>
+<%@page import="org.opencps.processmgt.service.WorkflowOutputLocalServiceUtil"%>
 <%@page import="org.opencps.backend.util.PaymentRequestGenerator"%>
 <%
 /**
@@ -89,14 +91,48 @@
 			processWorkflow = ProcessWorkflowLocalServiceUtil.getProcessWorkflow(processWorkflowId);
 		}catch(Exception e){}
 	}
+	
+	List<WorkflowOutput> listESign = WorkflowOutputLocalServiceUtil.getByProcessWFEsign(processWorkflowId, true);
+	List<String> listFileToSigner = new ArrayList<String>();
+	List<String> listDossierPartToSigner = new ArrayList<String>();
+	List<String> listDossierFileToSigner = new ArrayList<String>();
+	for (WorkflowOutput workflowOutput : listESign) {
+		DossierFile dossierFile2 = DossierFileLocalServiceUtil.getDossierFileInUse(dossierId, workflowOutput.getDossierPartId());
+		if(Validator.isNotNull(dossierFile2)){
+			listFileToSigner.add(dossierFile2.getFileEntryId()+"");
+			listDossierPartToSigner.add(workflowOutput.getDossierPartId()+"");
+			listDossierFileToSigner.add(dossierFile2.getDossierFileId()+"");
+		}
+		
+// 		List<DossierFile> listDossier = DossierFileLocalServiceUtil.getDossierFileByD_DP(dossierId, workflowOutput.getDossierPartId());
+// 		for (DossierFile dossierFile2 : listDossier) {
+// 			listFileToSigner.add(dossierFile2.getFileEntryId()+"");
+// 			listDossierPartToSigner.add(workflowOutput.getDossierPartId()+"");
+// 			listDossierFileToSigner.add(dossierFile2.getDossierFileId()+"");
+// 		}
+	}
 %>
-
 <portlet:actionURL var="assignToUserURL" name="assignToUser"/>
 
 <aui:form name="fm" action="<%=assignToUserURL.toString() %>" method="post">
 	<aui:input 
 		name="redirectURL" 
 		value="<%=currentURL %>" 
+		type="hidden"
+	/>
+	<aui:input 
+		name="listFileToSigner" 
+		value="<%=StringUtil.merge(listFileToSigner) %>" 
+		type="hidden"
+	/>
+	<aui:input 
+		name="listDossierPartToSigner" 
+		value="<%=StringUtil.merge(listDossierPartToSigner) %>" 
+		type="hidden"
+	/>
+	<aui:input 
+		name="listDossierFileToSigner" 
+		value="<%=StringUtil.merge(listDossierFileToSigner) %>" 
 		type="hidden"
 	/>
 	<aui:input 
@@ -208,11 +244,31 @@
 	<aui:input name="<%=ProcessOrderDisplayTerms.ACTION_NOTE %>" label="action-note" type="textarea"/>
 	
 	<aui:input name="signature" type="checkbox" label="apcept-signature"/>
-	<aui:button type="submit" value="submit" name="submit"/>
+	<c:choose>
+		<c:when test="<%=listESign.size() > 0 %>">
+			<aui:button type="submit" value="submit" name="submit" />
+			<aui:button type="button" value="kySo" name="kySo" onClick="getFileComputerHash(1);"/>
+			<aui:button type="button" value="dongdau" name="dongdau" onClick="getFileComputerHash(0);"/>
+		</c:when>
+		<c:otherwise>
+			<aui:button type="submit" value="submit" name="submit" />
+		</c:otherwise>
+	</c:choose>
+	
 	<aui:button type="button" value="cancel" name="cancel"/>
 </aui:form>
+<div style="visibility: hidden; height: 0px; width: 0px;">
+	<object id="plugin0" type="application/x-cryptolib05plugin" width="0" height="0" ></object>
+</div>
 
+<portlet:resourceURL var="getDataAjax"></portlet:resourceURL>
+
+<portlet:actionURL var="signatureURL" name="signature"></portlet:actionURL>
 <aui:script>
+function formSubmit() {
+	document.getElementById('<portlet:namespace />fm').action = '<%=assignToUserURL.toString() %>';
+		document.getElementById('<portlet:namespace />fm').submit();
+}
 	AUI().ready(function(A){
 
 		var cancelButton = A.one('#<portlet:namespace/>cancel');
@@ -239,4 +295,120 @@
 		dialog.destroy();
 		Liferay.Util.getOpener().Liferay.Portlet.refresh('#p_p_id_<%= WebKeys.PROCESS_ORDER_PORTLET %>_');
 	});
+	function plugin0()
+	 {
+	  return document.getElementById('plugin0');
+	 }
+	 plugin = plugin0;
+	var complateSignatureURL = '<%=signatureURL%>';
+
+		function getFileComputerHash(ks) {
+
+			var url = '<%=getDataAjax%>';
+			var nanoTime = $('#nanoTimePDF').val();
+			
+			url = url + "&nanoTimePDF="+nanoTime;
+			var listFileToSigner = $("#<portlet:namespace/>listFileToSigner").val().split(","); 
+			var listDossierPartToSigner = $("#<portlet:namespace/>listDossierPartToSigner").val().split(","); 
+			var listDossierFileToSigner = $("#<portlet:namespace/>listDossierFileToSigner").val().split(","); 
+			for ( var i = 0; i < listFileToSigner.length; i++) {
+				$.ajax({
+					type : 'POST',
+					url : url,
+					data : {
+						<portlet:namespace/>index: i,
+						<portlet:namespace/>indexSize: listFileToSigner.length,
+						<portlet:namespace/>ks: ks,
+						<portlet:namespace/>fileId: listFileToSigner[i],
+						<portlet:namespace/>dossierId: $("#<portlet:namespace/>dossierId").val(),
+						<portlet:namespace/>dossierPartId: listDossierPartToSigner[i],
+						<portlet:namespace/>dossierFileId: listDossierFileToSigner[i],
+						<portlet:namespace/>type: 'getComputerHash'
+					},
+					success : function(data) {
+						if(data){
+							var jsonData = JSON.parse(data);
+							var hashComputers = jsonData.hashComputers;
+							var signFieldNames = jsonData.signFieldNames;
+							var filePaths = jsonData.filePaths;
+							var msgs = jsonData.msg;
+							var fileNames = jsonData.fileNames;
+							var dossierFileIds = jsonData.dossierFileIds;
+							var dossierPartIds = jsonData.dossierPartIds;
+							var indexs = jsonData.indexs;
+							var indexSizes = jsonData.indexSizes;
+							for ( var i = 0; i < hashComputers.length; i++) {
+								var hashComputer = hashComputers[i];
+								var signFieldName = signFieldNames[i];
+								var filePath = filePaths[i];
+								var msg = msgs[i];
+								var fileName = fileNames[i];
+								var dossierFileId = dossierFileIds[i];
+								var dossierPartId = dossierPartIds[i];
+								var index = indexs[i];
+								var indexSize = indexSizes[i];
+								if(plugin().valid){
+									if(msg === 'success'){
+		 								var code = plugin().Sign(hashComputer);
+		 								if(code ===0 || code === 7){
+		 									var sign = plugin().Signature;
+											completeSignature(sign, signFieldName, filePath, fileName, $("#<portlet:namespace/>dossierId").val(), dossierFileId, dossierPartId, index, indexSize, '<%=signatureURL%>');
+											
+		 								}else{
+		 									alert("signer error");
+		 					            }
+									}else{
+										alert(msg);
+									}
+						        	
+						        } else {
+						         	alert("Plugin is not working");
+						        }
+							}
+						}
+					}
+				});
+			}
+	}
+
+	function completeSignature(sign, signFieldName, filePath, fileName, dossierId, dossierFileId, dossierPartId, index, indexSize, urlFromSubmit) {
+		var msg = '';
+		var A = AUI();
+		A.io.request(
+				complateSignatureURL,
+				{
+				    dataType : 'json',
+				    data:{    	
+				    	<portlet:namespace/>sign : sign,
+						<portlet:namespace/>signFieldName : signFieldName,
+						<portlet:namespace/>filePath : filePath,
+						<portlet:namespace/>fileName : fileName,
+						<portlet:namespace/>dossierId : dossierId,
+						<portlet:namespace/>dossierFileId: dossierFileId,
+						<portlet:namespace/>dossierPartId : dossierPartId
+				    },   
+				    on: {
+				        success: function(event, id, obj) {
+				        	var instance = this;
+							var res = instance.get('responseData');
+							
+							var msg = res.msg;
+							var newis = indexSize-1;
+								if (msg === 'success') {
+									if(index == newis){
+										formSubmit();
+									}
+								} else {
+										alert("--------- vao day completeSignature- ky so ko dc-------------");
+								}
+						},
+				    	error: function(){
+				    		alert("--------- vao day completeSignature- ky so ko dc-------------");
+				    	}
+					}
+				}
+			);
+		
+	}
+	
 </aui:script>

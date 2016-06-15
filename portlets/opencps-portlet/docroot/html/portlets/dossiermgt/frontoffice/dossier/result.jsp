@@ -107,14 +107,14 @@
 			</aui:col>
 			<aui:col width="25"></aui:col>
 		</aui:row>
-		
+		<hr class="canbo-ket-qua">
 		<c:if test="<%=dossierLogs != null && !dossierLogs.isEmpty() %>">
 			<aui:row>
 				<label>
 					<liferay-ui:message key="required-process"/>
 				</label>
-				<table>
-					<tr>
+				<table class="process-workflow-info">
+					<tr class="odd">
 						<td width="10%"><liferay-ui:message key="number-order"/></td>
 						<td width="30%"><liferay-ui:message key="datetime"/></td>
 						<td width="30%"><liferay-ui:message key="request-command"/></td>
@@ -123,7 +123,7 @@
 					<%
 						for(DossierLog dossierLog : dossierLogs){
 							%>
-								<tr>
+								<tr class="odd">
 									<td>
 										<%=dossierLogs.indexOf(dossierLog) %>
 									</td>
@@ -149,8 +149,8 @@
 		<%
 		if(dossierPartsLevel1 != null){
 			%>
-				<table width="100%" border="1">
-					<tr>
+				<table class="process-workflow-info">
+					<tr class="odd">
 						<td width="10%" bordercolor="#ccc"><liferay-ui:message key="number-order"/></td>
 						<td width="30%" bordercolor="#ccc"><liferay-ui:message key="dossier-file-date"/></td>
 						<td width="30%" bordercolor="#ccc"><liferay-ui:message key="dossier-file-no"/></td>
@@ -169,6 +169,9 @@
 								DossierFile dossierFile = null;
 								try{
 									dossierFile = DossierFileLocalServiceUtil.getDossierFileInUse(dossier.getDossierId(), dossierPart.getDossierpartId());
+									if(Validator.isNull(dossierFile)){
+										dossierFile = new DossierFileImpl();
+									}
 								}catch(Exception e){
 									continue;
 								}
@@ -192,7 +195,7 @@
 								}
 								
 								%>
-									<tr>
+									<tr class="odd">
 										<td><%=count %></td>
 										<td>
 											<%=Validator.isNotNull(dossierFile.getDossierFileDate()) ? DateTimeUtil.convertDateToString(dossierFile.getDossierFileDate(), DateTimeUtil._VN_DATE_TIME_FORMAT) : StringPool.BLANK %>
@@ -201,7 +204,7 @@
 											<%=Validator.isNotNull(dossierFile.getDossierFileNo()) ? dossierFile.getDossierFileNo() : StringPool.BLANK %>
 										</td>
 										<td>
-											<a href="<%=fileURL%>" target="_blank">
+											<a class="label opencps dossiermgt part-file-ctr" href="<%=fileURL%>" target="_blank">
 												<%=Validator.isNotNull(dossierFile.getDisplayName()) ? dossierFile.getDisplayName() : StringPool.BLANK  %>
 											</a>
 										</td>
@@ -224,3 +227,36 @@
 		</div>
 	</c:otherwise>
 </c:choose>
+<style>
+#_13_WAR_opencpsportlet_result .row-fluid {
+    border-left: 1px solid gainsboro;
+	border-top: 1px solid gainsboro;
+	border-bottom: 1px solid gainsboro;
+	border-right: 0px solid gainsboro;
+    margin-top: -1px;
+}
+#_13_WAR_opencpsportlet_result .row-fluid .span3 {
+    padding-left: 10px;
+    border-right: 1px solid gainsboro;
+    padding-top: 5px;
+}
+.odd{
+padding: 10px;
+ border-left: 1px solid gainsboro;
+  border-top: 1px solid gainsboro;
+   border-bottom: 1px solid gainsboro;
+    border-right: 0px solid gainsboro;
+}
+.odd td{
+border-right: 1px solid gainsboro;
+padding: 5px 0px 5px 10px;
+}
+.process-workflow-info{
+width: 100%;
+}
+.process-workflow-info .label.opencps.dossiermgt.part-file-ctr{
+	width: 100%;
+	text-align: center;
+	margin-right: 2px;
+}
+</style>

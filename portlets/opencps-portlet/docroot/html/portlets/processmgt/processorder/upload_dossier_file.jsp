@@ -62,6 +62,7 @@
 			
 	PortletUtil.SplitDate spd = new PortletUtil.SplitDate(defaultDossierFileDate);
 	
+	String varDosserId = String.valueOf(dossierFile != null ? dossierFile.getDossierId() : "0");
 %>
 
 <portlet:actionURL var="addAttachmentFileURL" name="addAttachmentFile"/>
@@ -160,7 +161,7 @@
 
 <aui:script use="aui-base,aui-io">
 	AUI().ready(function(A){
-		
+		setCookie('dossierId','<%=varDosserId %>');
 		var cancelButton = A.one('#<portlet:namespace/>cancel');
 		
 		var success = '<%=success%>';

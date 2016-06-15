@@ -127,6 +127,7 @@
   </tr>
 </table>
 
+<hr class="canbo-xuly-hoso">
 
 <%
 

@@ -54,7 +54,8 @@
 
 
 <aui:form name="payForm" action="">
-	<aui:input name="paymentFileId" value="<%= paymentFileId %>" type="hidden"></aui:input>
+	<aui:input name="<%=PaymentFileDisplayTerms.PAYMENT_FILE_ID %>" value="<%= paymentFileId %>" type="hidden"></aui:input>
+	<aui:input type="hidden" name="confirmHopLeHidden" value="1" />
 	<div class="lookup-result">
 		<table>
 			<tr>
