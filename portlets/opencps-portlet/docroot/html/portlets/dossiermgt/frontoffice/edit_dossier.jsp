@@ -198,7 +198,7 @@
 	
 	AUI().ready(function(A){
 		var varDossierId = A.one("#<portlet:namespace/>dossierId").val();
-		if(varDossierId == getCookie('dossierId')){
+		if(getCookie('dossierId') != ''){
 			var allFormNav = A.all(".form-navigator-content .tab-pane");
 			allFormNav.each(function (taskNode) {
             	taskNode.removeClass('active');
