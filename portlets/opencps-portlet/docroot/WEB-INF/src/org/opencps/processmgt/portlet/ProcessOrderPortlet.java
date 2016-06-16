@@ -572,9 +572,6 @@ public class ProcessOrderPortlet extends MVCPortlet {
 		ActionRequest actionRequest, ActionResponse actionResponse)
 		throws IOException {
 
-		AccountBean accountBean = AccountUtil
-			.getAccountBean(actionRequest);
-
 		Dossier dossier = null;
 		DossierFile dossierFile = null;
 		DossierPart dossierPart = null;
@@ -603,7 +600,14 @@ public class ProcessOrderPortlet extends MVCPortlet {
 			.getString(actionRequest, "redirectURL");
 
 		try {
-
+			ServiceContext serviceContext = ServiceContextFactory
+					.getInstance(actionRequest);
+			
+			dossier = DossierLocalServiceUtil
+					.getDossier(dossierId);
+			
+			AccountBean accountBean = AccountUtil.getAccountBean(dossier.getUserId(), serviceContext.getScopeGroupId(), serviceContext);
+			
 			validateCloneDossierFile(dossierId, dossierPartId,
 				cloneDossierFileId, accountBean);
 
@@ -616,16 +620,13 @@ public class ProcessOrderPortlet extends MVCPortlet {
 			FileEntry fileEntry = DLAppServiceUtil
 				.getFileEntry(fileEntryId);
 
-			ServiceContext serviceContext = ServiceContextFactory
-				.getInstance(actionRequest);
+			
 
 			serviceContext
 				.setAddGroupPermissions(true);
 			serviceContext
 				.setAddGuestPermissions(true);
 
-			dossier = DossierLocalServiceUtil
-				.getDossier(dossierId);
 
 			dossierPart = DossierPartLocalServiceUtil
 				.getDossierPart(dossierPartId);
@@ -772,8 +773,6 @@ public class ProcessOrderPortlet extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay) actionRequest
 			.getAttribute(WebKeys.THEME_DISPLAY);
 
-		AccountBean accountBean = AccountUtil
-			.getAccountBean(actionRequest);
 
 		long dossierFileId = ParamUtil
 			.getLong(actionRequest, DossierFileDisplayTerms.DOSSIER_FILE_ID);
@@ -790,7 +789,6 @@ public class ProcessOrderPortlet extends MVCPortlet {
 		String fileExportDir = StringPool.BLANK;
 
 		try {
-			validateCreateDynamicForm(dossierFileId, accountBean);
 
 			ServiceContext serviceContext = ServiceContextFactory
 				.getInstance(actionRequest);
@@ -803,14 +801,17 @@ public class ProcessOrderPortlet extends MVCPortlet {
 			DossierFile dossierFile = DossierFileLocalServiceUtil
 				.getDossierFile(dossierFileId);
 
+			Dossier dossier = DossierLocalServiceUtil
+					.getDossier(dossierFile
+						.getDossierId());
+				
+			AccountBean accountBean = AccountUtil.getAccountBean(dossier.getUserId(), themeDisplay.getScopeGroupId(), serviceContext);
+				
+			validateCreateDynamicForm(dossierFileId, accountBean);
 			// Get dossier part
 			DossierPart dossierPart = DossierPartLocalServiceUtil
 				.getDossierPart(dossierFile
 					.getDossierPartId());
-
-			Dossier dossier = DossierLocalServiceUtil
-				.getDossier(dossierFile
-					.getDossierId());
 
 			// Get account folder
 			DLFolder accountForlder = accountBean

@@ -1,4 +1,5 @@
 
+<%@page import="com.liferay.portal.service.ServiceContext"%>
 <%
 /**
  * OpenCPS is the open source Core Public Services software
@@ -91,8 +92,9 @@
 			
 		}
 	}
-	
-	AccountBean accBean = AccountUtil.getAccountBean();
+	ServiceContext serviceContext = new ServiceContext();
+	serviceContext.setScopeGroupId(themeDisplay.getScopeGroupId());
+	AccountBean accBean = AccountUtil.getAccountBean(themeDisplay.getUserId(), themeDisplay.getScopeGroupId(), serviceContext);
 	
 	Citizen ownerCitizen = null;
 	Business ownerBusiness = null;
@@ -210,7 +212,7 @@
 	
 	Liferay.provide(window, '<portlet:namespace/>createReport', function(dossierFileId) {
 		var A = AUI();
-		var portletURL = Liferay.PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, WebKeys.DOSSIER_MGT_PORTLET, themeDisplay.getPlid(), PortletRequest.ACTION_PHASE) %>');
+		var portletURL = Liferay.PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, (!accBean.isCitizen() && !accBean.isBusiness())?WebKeys.PROCESS_ORDER_PORTLET:WebKeys.DOSSIER_MGT_PORTLET, themeDisplay.getPlid(), PortletRequest.ACTION_PHASE) %>');
 		portletURL.setParameter("javax.portlet.action", "createReport");
 		portletURL.setWindowState('<%=WindowState.NORMAL%>');
 		var loadingMask = new A.LoadingMask(
