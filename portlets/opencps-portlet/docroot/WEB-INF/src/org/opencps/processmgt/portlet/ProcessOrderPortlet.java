@@ -1316,9 +1316,9 @@ public class ProcessOrderPortlet extends MVCPortlet {
 		ActionRequest actionRequest, ActionResponse actionResponse)
 		throws IOException {
 
-		AccountBean accountBean = AccountUtil
-			.getAccountBean(actionRequest);
-
+		ThemeDisplay themeDisplay = (ThemeDisplay) actionRequest
+				.getAttribute(WebKeys.THEME_DISPLAY);
+		
 		DossierFile dossierFile = null;
 
 		long dossierId = ParamUtil
@@ -1352,11 +1352,16 @@ public class ProcessOrderPortlet extends MVCPortlet {
 		Date dossierFileDate = null;
 
 		try {
-			validateDynamicFormData(dossierId, dossierPartId, accountBean);
+			
 
 			ServiceContext serviceContext = ServiceContextFactory
 				.getInstance(actionRequest);
-
+			
+			Dossier dossier = DossierLocalServiceUtil.fetchDossier(dossierId);
+			
+			AccountBean accountBean = AccountUtil.getAccountBean(dossier.getUserId(), themeDisplay.getScopeGroupId(), serviceContext);
+			validateDynamicFormData(dossierId, dossierPartId, accountBean);
+			
 			DossierPart dossierPart = DossierPartLocalServiceUtil
 				.getDossierPart(dossierPartId);
 

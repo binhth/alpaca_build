@@ -157,6 +157,7 @@ Liferay.provide(window, 'viewVersion', function(e, uri, ns) {
 
 
 Liferay.provide(window, 'closeDialog', function(id, portletName) {
+	setCookie('dossierId','1');
 	
 	var dialog = Liferay.Util.getWindow(id);
 	
