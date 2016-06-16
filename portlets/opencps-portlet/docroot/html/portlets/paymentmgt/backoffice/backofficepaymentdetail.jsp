@@ -173,7 +173,7 @@
                         }
                     %>
                     <c:if test="<%= dlURL != null %>">
-                        <a target="_blank" href="<%= dlURL %>"><liferay-ui:message key="view-confirm-file-entry"></liferay-ui:message></a>
+                        <a class="label opencps dossiermgt part-file-ctr" target="_blank" href="<%= dlURL %>"><liferay-ui:message key="view-confirm-file-entry"></liferay-ui:message></a>
                     </c:if>
             </td>
         </tr>   
@@ -206,3 +206,12 @@
 <aui:button-row>
 <aui:button name="back" value="back" href="<%=backRedirect.toString() %>" />
 </aui:button-row>
+<style>
+.label.opencps.dossiermgt.part-file-ctr{
+    color: #fff !important;
+    background-color: #25BB61;
+    float: left;
+    margin-left: 5px;
+    padding: 5px 3px;
+}
+</style>
