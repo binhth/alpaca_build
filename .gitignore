@@ -226,5 +226,13 @@ portlets/LiferayJSONWebservices-portlet.rar
 portlets/LiferayJSONWebservices-portlet/
 
 portlets/opencps-portlet/*.log
+<<<<<<< develop
 portlets/opencps-portlet/.project
 portlets/opencps-portlet/.gitignore
+=======
+
+portlets/opencps-portlet/docroot/WEB-INF/src/META-INF/*.
+
+/hooks/opencps-hook/docroot/WEB-INF/classes/content/*
+portlets/opencps-portlet/.project
+>>>>>>> local
