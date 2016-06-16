@@ -206,6 +206,7 @@
 		var success = '<%=success%>';
 		
 		if(success == 'true'){
+			setCookie('dossierId','1');
 			Liferay.Util.getOpener().Liferay.Portlet.refresh('#p_p_id' + '<portlet:namespace/>');
 		}
 	});
@@ -274,3 +275,32 @@
 	},['aui-io','liferay-portlet-url', 'aui-loading-mask-deprecated']);
 	
 </aui:script>
+
+<script type="text/javascript">
+function openCPSSelectedTextValue(id) {
+	var listbox = document.getElementById(id);
+	var selIndex = listbox.selectedIndex;
+	var selText = listbox.options[selIndex].text; 
+    return selText;
+}
+
+function openCPSSelectedbildDataSource(controlId,dictCollectionId, parentItemId) {
+	Liferay.Service(
+			  '/opencps-portlet.dictitem/get-dictitems-inuse-by-dictcollectionId_parentItemId_datasource',
+			  {
+			    dictCollectionId: dictCollectionId,
+			    parentItemId: parentItemId
+			  },
+			  function(obj) {
+				var comboTarget = document.getElementById(controlId); 
+			    for(j in obj){
+                    var sub_key = j;
+                    var sub_val = obj[j];
+                    var newOpt = comboTarget.appendChild(document.createElement('option'));
+					newOpt.value = sub_key;
+					newOpt.text = sub_val;
+                }
+			  }
+			);
+}
+</script>

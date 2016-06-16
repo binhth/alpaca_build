@@ -83,7 +83,7 @@
 				
 			}else{
 				try {
-					dossierFiles = PaymentFileLocalServiceUtil.getPaymentFiles(-1, -1);
+					dossierFiles = PaymentFileLocalServiceUtil.getPaymentFiles(searchContainer.getStart(), searchContainer.getEnd());
 					totalCount = PaymentFileLocalServiceUtil.getPaymentFilesCount();
 				} catch(Exception e){
 					_log.error(e);

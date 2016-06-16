@@ -158,6 +158,9 @@
 											</span>
 											<span class="opencps dossiermgt dossier-part-name">
 												<%=dossierPart.getPartName() %>
+												<c:if test="<%=dossierPartLevel1.getRequired() %>">
+													<span style="float: inherit; top: -5px; font-size: 10px;" class="alpaca-icon-required glyphicon glyphicon-star"></span>
+												</c:if>
 											</span>
 										</span>
 									
@@ -301,6 +304,9 @@
 									</span>
 									<span class="opencps dossiermgt dossier-part-name">
 										<%=dossierPartLevel1.getPartName() %>
+										<c:if test="<%=dossierPartLevel1.getRequired() %>">
+											<span style="float: inherit; top: -5px; font-size: 10px;" class="alpaca-icon-required glyphicon glyphicon-star"></span>
+										</c:if>
 									</span>
 								</span>
 								<span class="opencps dossiermgt dossier-part-control">
@@ -446,6 +452,7 @@
 												response = JSON.parse(response);
 												
 												if(response.deleted == true){
+													setCookie('dossierId','1');
 													Liferay.Util.getOpener().Liferay.Portlet.refresh('#p_p_id_<%= WebKeys.DOSSIER_MGT_PORTLET %>_');
 												}else{
 													alert('<%= UnicodeLanguageUtil.get(pageContext, "error-while-remove-this-file") %>');
