@@ -140,7 +140,29 @@
 				<liferay-ui:message key="chung-tu-kem-theo"/>
 			</td>
 			<td class="col-right">
-				<%=HtmlUtil.escape("") %>
+				<%
+						FileEntry fileEntry = null;
+						try {
+							fileEntry = DLAppServiceUtil.getFileEntry(paymentFile.getConfirmFileEntryId());
+						}
+						catch (NoSuchFileEntryException e) {
+							
+						}
+						String dlURL = null;
+						if (fileEntry != null) {
+							FileVersion fileVersion = fileEntry.getFileVersion();
+							 
+							String queryString = "";							 
+							boolean appendFileEntryVersion = true;
+							 
+							boolean useAbsoluteURL = true;
+							 
+							dlURL = DLUtil.getPreviewURL(fileEntry, fileVersion, themeDisplay, queryString, appendFileEntryVersion, useAbsoluteURL);							
+						}
+					%>
+					<c:if test="<%= dlURL != null %>">
+						<a target="_blank" href="<%= dlURL %>"><liferay-ui:message key="view-confirm-file-entry"></liferay-ui:message></a>
+					</c:if>
 			</td>
 		</tr>	
 		<tr>

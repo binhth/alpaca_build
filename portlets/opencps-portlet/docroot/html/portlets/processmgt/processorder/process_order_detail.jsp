@@ -1,4 +1,5 @@
 
+<%@page import="org.opencps.dossiermgt.search.DossierDisplayTerms"%>
 <%
 /**
  * OpenCPS is the open source Core Public Services software
@@ -78,7 +79,11 @@
 		type="hidden" 
 		value="<%= currentURL%>"
 	/>
-	
+	<aui:input 
+				name="<%=DossierDisplayTerms.DOSSIER_ID %>" 
+				type="hidden" 
+				value="<%= processOrder != null ? processOrder.getDossierId() : 0%>"
+			/>
 	<liferay-ui:form-navigator
 		backURL="<%= backURL %>"
 		categoryNames="<%= ProcessUtils._PROCESS_ORDER_CATEGORY_NAMES %>"
@@ -89,7 +94,26 @@
 		showButtons="<%=false%>"
 	/>
 </aui:form>
-
+<aui:script>
+	
+	AUI().ready(function(A){
+		var varDossierId = A.one("#<portlet:namespace/>dossierId").val();
+		if(getCookie('dossierId') != ''){
+			var allFormNav = A.all(".form-navigator-content .tab-pane");
+			allFormNav.each(function (taskNode) {
+            	taskNode.removeClass('active');
+            	A.one("#"+taskNode.attr('id')+"Tab").removeClass('tab-selected').removeClass('tab-focused').removeClass('active');
+				if(taskNode.attr('id') == '_<%= WebKeys.PROCESS_ORDER_PORTLET %>_process'){
+					taskNode.addClass('active');
+					A.one("#"+taskNode.attr('id')+"Tab").addClass('tab-selected').addClass('active');
+				}
+            });
+			setCookie('dossierId','');
+		}else{
+			setCookie('dossierId','');
+		}
+	});
+</aui:script>
 <%!
 	private Log _log = LogFactoryUtil.getLog("html.portlets.processmgt.processorder.process_order_detail.jsp");
 %>

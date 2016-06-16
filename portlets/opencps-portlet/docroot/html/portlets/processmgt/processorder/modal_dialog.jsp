@@ -23,7 +23,6 @@
 <%
 	String content = ParamUtil.getString(request, "content", "upload");
 %>
-
 <c:choose>
 	<c:when test='<%=content.equals("upload-file") %>'>
 		<liferay-util:include page='<%=templatePath + "dossier_file.jsp" %>' servletContext="<%=application %>"/>
@@ -38,6 +37,9 @@
 		<liferay-util:include page='<%=templatePath + "dossier_dynamic_form.jsp" %>' servletContext="<%=application %>">
 			
 		</liferay-util:include>
+	</c:when>
+	<c:when test='<%=content.equals("view-version") %>'>
+		<liferay-util:include  page='<%=templatePath + "dossier_file_version.jsp" %>' servletContext="<%=application %>"/>
 	</c:when>
 </c:choose>
 

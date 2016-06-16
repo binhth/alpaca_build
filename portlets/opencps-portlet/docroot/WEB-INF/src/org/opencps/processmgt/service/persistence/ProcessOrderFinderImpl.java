@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.opencps.dossiermgt.bean.ProcessOrderBean;
+import org.opencps.dossiermgt.model.Dossier;
+import org.opencps.dossiermgt.model.impl.DossierImpl;
 import org.opencps.processmgt.model.ProcessOrder;
 import org.opencps.processmgt.model.impl.ProcessOrderImpl;
 
@@ -36,6 +38,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
@@ -60,6 +63,13 @@ public class ProcessOrderFinderImpl extends BasePersistenceImpl<ProcessOrder>
 					ProcessOrderFinder.class
 	        .getName() + ".getUserProcessStep";
 
+	public final static String SQL_ONEGATE_PROCESS_ORDER_FINDER =
+			ProcessOrderFinder.class
+			.getName() + ".oneGateSearchProcessOrder";
+	public final static String SQL_ONEGATE_PROCESS_ORDER_COUNT =
+			ProcessOrderFinder.class
+			.getName() + ".oneGateCountProcessOrder";
+	
 	public int countProcessOrder(long processStepId, long loginUserId, long actionUserId) {
 
 		Session session = null;
@@ -384,5 +394,249 @@ public class ProcessOrderFinderImpl extends BasePersistenceImpl<ProcessOrder>
 		return null;
 	}
 
+	public int oneGateCountProcessOrder(long groupId, String keyword, int dossierStatus, long serviceInfoId, long processStepId) {
+
+		String[] keywords = null;
+
+		boolean andOperator = false;
+
+		if (Validator
+		    .isNotNull(keyword)) {
+			keywords = CustomSQLUtil
+			    .keywords(keyword);
+		}
+		else {
+			andOperator = true;
+		}
+
+		return oneGateCountProcessOrder(groupId, keywords, dossierStatus, serviceInfoId, processStepId, andOperator);
+	}
+
+	private int oneGateCountProcessOrder(
+	    long groupId, String[] keywords, int dossierStatus, long serviceInfoId, long processStepId,
+	    boolean andOperator) {
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			String sql = CustomSQLUtil
+			    .get(SQL_ONEGATE_PROCESS_ORDER_COUNT);
+
+			if (keywords != null && keywords.length > 0) {
+				sql = CustomSQLUtil
+				    .replaceKeywords(
+				        sql, "lower(opencps_processorder.govAgencyName)",
+				        StringPool.LIKE, true, keywords);
+
+				sql = CustomSQLUtil
+				    .replaceKeywords(
+				        sql, "lower(opencps_dossier.subjectName)",
+				        StringPool.LIKE, true, keywords);
+				sql = CustomSQLUtil
+					    .replaceKeywords(
+					        sql, "lower(opencps_dossier.receptionNo)",
+					        StringPool.LIKE, true, keywords);
+			}
+
+			
+
+			if (keywords == null || keywords.length == 0) {
+				sql = StringUtil
+					    .replace(
+					        sql,
+					        "AND ((lower(opencps_processorder.govAgencyName) LIKE ? [$AND_OR_NULL_CHECK$]) OR (lower(opencps_dossier.subjectName) LIKE ? [$AND_OR_NULL_CHECK$]) OR (lower(opencps_dossier.receptionNo) LIKE ? [$AND_OR_NULL_CHECK$]))",
+					        StringPool.BLANK);
+			}
+
+			if (dossierStatus < 0) {
+				sql = StringUtil
+				    .replace(
+				        sql, "AND opencps_processorder.dossierStatus = ?",
+				        StringPool.BLANK);
+			}
+			if (serviceInfoId < 0) {
+				sql = StringUtil
+					    .replace(
+					        sql, "AND opencps_processorder.serviceInfoId = ?",
+					        StringPool.BLANK);				
+			}
+			
+			sql = CustomSQLUtil
+						    .replaceAndOperator(sql, andOperator);
+
+			SQLQuery q = session
+			    .createSQLQuery(sql);
+
+			q
+			    .addScalar(COUNT_COLUMN_NAME, Type.INTEGER);
+
+			QueryPos qPos = QueryPos
+			    .getInstance(q);
+
+			//qPos.add(groupId);
+			qPos.add(processStepId);
+			
+			if (dossierStatus >= 0) {
+				qPos
+				    .add(dossierStatus);
+			}
+			if (serviceInfoId >= 0) {
+				qPos
+					.add(serviceInfoId);
+			}
+
+			if (keywords != null && keywords.length > 0) {
+				qPos
+				    .add(keywords, 2);
+				qPos
+				    .add(keywords, 2);
+				qPos
+					.add(keywords, 2);
+			}
+
+			Iterator<Integer> itr = q
+			    .iterate();
+
+			if (itr
+			    .hasNext()) {
+				Integer count = itr
+				    .next();
+
+				if (count != null) {
+					return count
+					    .intValue();
+				}
+			}
+
+			return 0;
+
+		}
+		catch (Exception e) {
+			_log
+			    .error(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return 0;
+	}
+
+	public List<ProcessOrder> oneGateSearchProcessOrder(
+	    long groupId, String keyword, int dossierStatus, long serviceInfoId, long processStepId, int start, int end,
+	    OrderByComparator obc) {
+
+		String[] keywords = null;
+		boolean andOperator = false;
+		if (Validator
+		    .isNotNull(keyword)) {
+			keywords = CustomSQLUtil
+			    .keywords(keyword);
+		}
+		else {
+			andOperator = true;
+		}
+		return oneGateSearchProcessOrder(
+		    groupId, keywords, dossierStatus, serviceInfoId, processStepId, andOperator, start, end, obc);
+	}
+
+	private List<ProcessOrder> oneGateSearchProcessOrder(
+	    long groupId, String[] keywords, int dossierStatus, long serviceInfoId, long processStepId, boolean andOperator,
+	    int start, int end, OrderByComparator obc) {
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			String sql = CustomSQLUtil
+			    .get(SQL_ONEGATE_PROCESS_ORDER_FINDER);
+
+			if (keywords != null && keywords.length > 0) {
+				sql = CustomSQLUtil
+					    .replaceKeywords(
+					        sql, "lower(opencps_processorder.govAgencyName)",
+					        StringPool.LIKE, true, keywords);
+
+					sql = CustomSQLUtil
+					    .replaceKeywords(
+					        sql, "lower(opencps_dossier.subjectName)",
+					        StringPool.LIKE, true, keywords);
+					sql = CustomSQLUtil
+						    .replaceKeywords(
+						        sql, "lower(opencps_dossier.receptionNo)",
+						        StringPool.LIKE, true, keywords);
+			}
+
+			if (keywords == null || keywords.length == 0) {
+				sql = StringUtil
+					    .replace(
+					        sql,
+					        "AND ((lower(opencps_processorder.govAgencyName) LIKE ? [$AND_OR_NULL_CHECK$]) OR (lower(opencps_dossier.subjectName) LIKE ? [$AND_OR_NULL_CHECK$]) OR (lower(opencps_dossier.receptionNo) LIKE ? [$AND_OR_NULL_CHECK$]))",
+					        StringPool.BLANK);
+			}
+
+			if (dossierStatus < 0) {
+				sql = StringUtil
+				    .replace(
+				        sql, "AND opencps_dossier.dossierStatus = ?",
+				        StringPool.BLANK);
+			}
+			if (serviceInfoId < 0) {
+				sql = StringUtil
+					    .replace(
+					        sql, "AND opencps_processorder.serviceInfoId = ?",
+					        StringPool.BLANK);				
+			}
+			
+			sql = CustomSQLUtil
+						    .replaceAndOperator(sql, andOperator);
+
+			SQLQuery q = session
+			    .createSQLQuery(sql);
+
+			q
+			    .addEntity("ProcessOrder", ProcessOrderImpl.class);
+
+			QueryPos qPos = QueryPos
+			    .getInstance(q);
+
+			//qPos.add(groupId);
+			qPos.add(processStepId);
+			
+			if (dossierStatus >= 0) {
+				qPos
+				    .add(dossierStatus);
+			}
+			if (serviceInfoId >= 0) {
+				qPos
+					.add(serviceInfoId);
+			}
+			
+			if (keywords != null && keywords.length > 0) {
+				qPos
+				    .add(keywords, 2);
+				qPos
+				    .add(keywords, 2);
+				qPos
+					.add(keywords, 2);
+			}
+
+			return (List<ProcessOrder>) QueryUtil
+			    .list(q, getDialect(), start, end);
+		}
+		catch (Exception e) {
+			_log
+			    .error(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return null;
+	}
+	
 	private Log _log = LogFactoryUtil.getLog(ProcessOrderFinderImpl.class.getName());
 }
