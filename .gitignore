@@ -228,3 +228,5 @@ portlets/LiferayJSONWebservices-portlet/
 portlets/opencps-portlet/*.log
 
 portlets/opencps-portlet/docroot/WEB-INF/src/META-INF/*.
+
+/hooks/opencps-hook/docroot/WEB-INF/classes/content/*
