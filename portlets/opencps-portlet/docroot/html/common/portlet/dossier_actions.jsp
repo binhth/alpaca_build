@@ -28,6 +28,8 @@
 <%
 	boolean isDynamicForm = ParamUtil.getBoolean(request, "isDynamicForm");
 
+	boolean isEditDossier = ParamUtil.getBoolean(request, "isEditDossier");
+
 	boolean isChildDossierPart = GetterUtil.getBoolean(ParamUtil.getBoolean(request, "isChildDossierPart"), false);
 
 	long dossierId = ParamUtil.getLong(request, DossierDisplayTerms.DOSSIER_ID);
@@ -59,7 +61,12 @@
 			if(isChildDossierPart && fileGroupId > 0){
 				version = DossierFileLocalServiceUtil.countDossierFile(dossierId, childDossierPartId, fileGroupId);
 			}else{
-				version = DossierFileLocalServiceUtil.countDossierFile(dossierId, dossierPartId);
+				if(partType == PortletConstants.DOSSIER_PART_TYPE_OTHER){
+					version = 1;
+				}else{
+					version = DossierFileLocalServiceUtil.countDossierFile(dossierId, dossierPartId);
+				}
+				
 			}
 			
 		}catch(Exception e){}
@@ -73,18 +80,36 @@
 			<c:when test="<%=partType == PortletConstants.DOSSIER_PART_TYPE_SUBMIT%>">
 				<td width="80%" align="right">
 					<c:choose>
-						<c:when test="<%=isDynamicForm %>">
+						<c:when test="<%=isDynamicForm && fileEntryId <= 0%>">
+							<c:if test="<%=isEditDossier %>">
+								<aui:a 
+									id="<%=String.valueOf(dossierPartId) %>"
+									dossier="<%=String.valueOf(dossierId) %>"
+									dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
+									dossier-file="<%=String.valueOf(dossierFileId) %>"
+									file-group="<%=String.valueOf(fileGroupId) %>"
+									group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+									group-name="<%=groupName %>"
+									href="javascript:void(0);" 
+									label="declaration-online" 
+									cssClass="label opencps dossiermgt part-file-ctr declaration-online"
+									title="declaration-online"
+								/>
+							</c:if>
+						</c:when>
+						<c:when test="<%=isDynamicForm && fileEntryId > 0  %>">
 							<aui:a 
 								id="<%=String.valueOf(dossierPartId) %>"
+								dossier="<%=String.valueOf(dossierId) %>"
 								dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
 								dossier-file="<%=String.valueOf(dossierFileId) %>"
+								file-group="<%=String.valueOf(fileGroupId) %>"
 								group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
 								group-name="<%=groupName %>"
 								href="javascript:void(0);" 
-								label="declaration-online" 
-								cssClass="opencps dossiermgt part-file-ctr declaration-online"
-								onClick='<%=renderResponse.getNamespace() + "declarationOnline(this)" %>'
-								title="declaration-online"
+								label="view-form" 
+								cssClass="label opencps dossiermgt part-file-ctr view-form"
+								title="view-form"
 							/>
 						</c:when>
 						<c:otherwise>
@@ -98,24 +123,26 @@
 										group-name="<%=groupName %>"
 										href="javascript:void(0);" 
 										label="view-attachment" 
-										cssClass="opencps dossiermgt part-file-ctr view-attachment"
+										cssClass="label opencps dossiermgt part-file-ctr view-attachment"
 										title="view-attachment"
 									/>
 								</c:when>
 								<c:otherwise>
-									<aui:a 
-										id="<%=String.valueOf(dossierPartId) %>"
-										dossier="<%=String.valueOf(dossierId) %>"
-										dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
-										dossier-file="<%=String.valueOf(dossierFileId) %>"
-										file-group="<%=String.valueOf(fileGroupId) %>"
-										group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
-										group-name="<%=groupName %>"
-										href="javascript:void(0);" 
-										label="upload-file" 
-										cssClass="opencps dossiermgt part-file-ctr upload-dossier-file"
-										title="upload-file"
-									/>
+									<c:if test="<%=isEditDossier %>">
+										<aui:a 
+											id="<%=String.valueOf(dossierPartId) %>"
+											dossier="<%=String.valueOf(dossierId) %>"
+											dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
+											dossier-file="<%=String.valueOf(dossierFileId) %>"
+											file-group="<%=String.valueOf(fileGroupId) %>"
+											group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+											group-name="<%=groupName %>"
+											href="javascript:void(0);" 
+											label="upload-file" 
+											cssClass="label opencps dossiermgt part-file-ctr upload-dossier-file"
+											title="upload-file"
+										/>
+									</c:if>
 								</c:otherwise>
 							</c:choose>
 						</c:otherwise>
@@ -125,44 +152,59 @@
 				<td width="10%" align="right">
 					<span class="dossier-version-counter">
 						<span class="counter-value" title="version">
-							<%=version %>
+							<aui:a 
+								id="<%=String.valueOf(dossierPartId) %>"
+								dossier="<%=String.valueOf(dossierId) %>"
+								dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
+								dossier-file="<%=String.valueOf(dossierFileId) %>"
+								file-group="<%=String.valueOf(fileGroupId) %>"
+								group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+								group-name="<%=groupName %>"
+								href="javascript:void(0);" 
+								cssClass="view-version"
+							>
+								<%=version %>
+							</aui:a>
 						</span>
 					</span>
 				</td>
 				
 				<td width="10%" align="right">
-					<aui:a
-						cssClass="opencps dossiermgt part-file-ctr remove-dossier-file"
-						dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
-						dossier-file="<%=String.valueOf(dossierFileId) %>"
-						group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
-						group-name="<%=groupName %>"
-						href="javascript:void(0);" 
-						id="<%=String.valueOf(dossierPartId) %>"
-						title="remove"
-					>
-						<i class="fa fa-times" aria-hidden="true"></i>
-						
-					</aui:a>
+					<c:if test="<%=isEditDossier %>">
+						<aui:a
+							cssClass="opencps dossiermgt part-file-ctr remove-dossier-file"
+							dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
+							dossier-file="<%=String.valueOf(dossierFileId) %>"
+							group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+							group-name="<%=groupName %>"
+							href="javascript:void(0);" 
+							id="<%=String.valueOf(dossierPartId) %>"
+							title="remove"
+						>
+							<i class="fa fa-times" aria-hidden="true"></i>
+							
+						</aui:a>
+					</c:if>
 				</td>
 			</c:when>
 			
 			<c:when test="<%=partType == PortletConstants.DOSSIER_PART_TYPE_OTHER && level == 0 %>">
 				<td width="80%" align="right">
-					<aui:a 
-						id="<%=String.valueOf(dossierPartId) %>"
-						dossier="<%=String.valueOf(dossierId) %>"
-						dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
-						dossier-file="<%=String.valueOf(dossierFileId) %>"
-						file-group="<%=String.valueOf(fileGroupId) %>"
-						group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
-						group-name="<%=groupName %>"
-						href="javascript:void(0);" 
-						label="upload-file" 
-						cssClass="opencps dossiermgt part-file-ctr upload-dossier-file"
-						title="upload-file"
-					/>
-					
+					<c:if test="<%=isEditDossier %>">
+						<aui:a 
+							id="<%=String.valueOf(dossierPartId) %>"
+							dossier="<%=String.valueOf(dossierId) %>"
+							dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
+							dossier-file="<%=String.valueOf(dossierFileId) %>"
+							file-group="<%=String.valueOf(fileGroupId) %>"
+							group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+							group-name="<%=groupName %>"
+							href="javascript:void(0);" 
+							label="upload-file" 
+							cssClass="label opencps dossiermgt part-file-ctr upload-dossier-file"
+							title="upload-file"
+						/>
+					</c:if>
 				</td>
 				<td width="10%" align="right">
 					
@@ -184,12 +226,33 @@
 								group-name="<%=groupName %>"
 								href="javascript:void(0);" 
 								label="view-attachment" 
-								cssClass="opencps dossiermgt part-file-ctr view-attachment"
-								
+								cssClass="label opencps dossiermgt part-file-ctr view-attachment"
 								title="view-attachment"
 							/>
 						</c:when>
 						<c:otherwise>
+							<c:if test="<%=isEditDossier %>">
+								<aui:a 
+									id="<%=String.valueOf(dossierPartId) %>"
+									dossier="<%=String.valueOf(dossierId) %>"
+									dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
+									dossier-file="<%=String.valueOf(dossierFileId) %>"
+									file-group="<%=String.valueOf(fileGroupId) %>"
+									group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+									group-name="<%=groupName %>"
+									href="javascript:void(0);" 
+									label="upload-file" 
+									cssClass="label opencps dossiermgt part-file-ctr upload-dossier-file"
+									title="upload-file"
+								/>
+							</c:if>
+						</c:otherwise>
+					</c:choose>
+				</td>
+				
+				<td width="10%" align="right">
+					<span class="dossier-file-counter">
+						<span class="counter-value" title="version">
 							<aui:a 
 								id="<%=String.valueOf(dossierPartId) %>"
 								dossier="<%=String.valueOf(dossierId) %>"
@@ -199,37 +262,30 @@
 								group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
 								group-name="<%=groupName %>"
 								href="javascript:void(0);" 
-								label="upload-file" 
-								cssClass="opencps dossiermgt part-file-ctr upload-dossier-file"
-								title="upload-file"
-							/>
-						</c:otherwise>
-					</c:choose>
-				</td>
-				
-				<td width="10%" align="right">
-					<span class="dossier-file-counter">
-						<span class="counter-value" title="version">
-							<%=version %>
+								cssClass="view-version"
+							>
+								<%=version %>
+							</aui:a>
 						</span>
 					</span>
 				</td>
 				<td width="10%" align="right">
-					<aui:a 
-						cssClass="opencps dossiermgt part-file-ctr remove-dossier-file"
-						dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
-						dossier-file="<%=String.valueOf(dossierFileId) %>"
-						group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
-						group-name="<%=groupName %>"
-						level = "<%=level %>"
-						href="javascript:void(0);" 
-						id="<%=String.valueOf(dossierPartId) %>"
-						
-						title="remove"
-					>
-						<i class="fa fa-times" aria-hidden="true"></i>
-						
-					</aui:a>
+					<c:if test="<%=isEditDossier %>">
+						<aui:a 
+							cssClass="opencps dossiermgt part-file-ctr remove-dossier-file"
+							dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
+							dossier-file="<%=String.valueOf(dossierFileId) %>"
+							group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+							group-name="<%=groupName %>"
+							level = "<%=level %>"
+							href="javascript:void(0);" 
+							id="<%=String.valueOf(dossierPartId) %>"
+							title="remove"
+						>
+							<i class="fa fa-times" aria-hidden="true"></i>
+							
+						</aui:a>
+					</c:if>
 				</td>
 			</c:when>
 			
@@ -242,21 +298,23 @@
 					
 				</td>
 				<td width="10%" align="right">
-					<aui:a 
-						id="<%=String.valueOf(dossierPartId) %>"
-						dossier="<%=String.valueOf(dossierId) %>"
-						dossier-part="<%=String.valueOf(dossierPartId) %>"
-						group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
-						file-group="<%=String.valueOf(fileGroupId) %>"
-						group-name="<%=groupName %>"
-						level = "<%=level %>"
-						href="javascript:void(0);" 
-						cssClass="opencps dossiermgt part-file-ctr remove-individual-group"
-						title="remove-group"
-					>
-						<i class="fa fa-minus-circle" aria-hidden="true"></i>
-						
-					</aui:a>
+					<c:if test="<%=isEditDossier %>">
+						<aui:a 
+							id="<%=String.valueOf(dossierPartId) %>"
+							dossier="<%=String.valueOf(dossierId) %>"
+							dossier-part="<%=String.valueOf(dossierPartId) %>"
+							group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+							file-group="<%=String.valueOf(fileGroupId) %>"
+							group-name="<%=groupName %>"
+							level = "<%=level %>"
+							href="javascript:void(0);" 
+							cssClass="opencps dossiermgt part-file-ctr remove-individual-group"
+							title="remove-group"
+						>
+							<i class="fa fa-minus-circle" aria-hidden="true"></i>
+							
+						</aui:a>
+					</c:if>
 				</td>
 			</c:when>
 			
@@ -285,12 +343,33 @@
 								group-name="<%=groupName %>"
 								href="javascript:void(0);" 
 								label="view-attachment" 
-								cssClass="opencps dossiermgt part-file-ctr view-attachment"
-								
+								cssClass="label opencps dossiermgt part-file-ctr view-attachment"
 								title="view-attachment"
 							/>
 						</c:when>
 						<c:otherwise>
+							<c:if test="<%=isEditDossier %>">
+								<aui:a 
+									id="<%=String.valueOf(dossierPartId) %>"
+									dossier="<%=String.valueOf(dossierId) %>"
+									dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
+									dossier-file="<%=String.valueOf(dossierFileId) %>"
+									file-group="<%=String.valueOf(fileGroupId) %>"
+									group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+									group-name="<%=groupName %>"
+									href="javascript:void(0);" 
+									label="upload-file" 
+									cssClass="label opencps dossiermgt part-file-ctr upload-dossier-file"
+									title="upload-file"
+								/>
+							</c:if>
+						</c:otherwise>
+					</c:choose>
+				</td>
+				
+				<td width="10%" align="right">
+					<span class="dossier-file-counter">
+						<span class="counter-value" title="version">
 							<aui:a 
 								id="<%=String.valueOf(dossierPartId) %>"
 								dossier="<%=String.valueOf(dossierId) %>"
@@ -300,18 +379,10 @@
 								group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
 								group-name="<%=groupName %>"
 								href="javascript:void(0);" 
-								label="upload-file" 
-								cssClass="opencps dossiermgt part-file-ctr upload-dossier-file"
-								title="upload-file"
-							/>
-						</c:otherwise>
-					</c:choose>
-				</td>
-				
-				<td width="10%" align="right">
-					<span class="dossier-file-counter">
-						<span class="counter-value" title="version">
-							<%=version %>
+								cssClass="view-version"
+							>
+								<%=version %>
+							</aui:a>
 						</span>
 					</span>
 				</td>
@@ -336,18 +407,36 @@
 			<c:when test="<%=partType == PortletConstants.DOSSIER_PART_TYPE_RESULT %>">
 				<td width="80%" align="right">
 					<c:choose>
-						<c:when test="<%=isDynamicForm %>">
+						<c:when test="<%=isDynamicForm && fileEntryId <= 0  %>">
+							<c:if test="<%=isEditDossier %>">
+								<aui:a 
+									id="<%=String.valueOf(dossierPartId) %>"
+									dossier="<%=String.valueOf(dossierId) %>"
+									dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
+									dossier-file="<%=String.valueOf(dossierFileId) %>"
+									file-group="<%=String.valueOf(fileGroupId) %>"
+									group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+									group-name="<%=groupName %>"
+									href="javascript:void(0);" 
+									label="declaration-online" 
+									cssClass="label opencps dossiermgt part-file-ctr declaration-online"
+									title="declaration-online"
+								/>
+							</c:if>
+						</c:when>
+						<c:when test="<%=isDynamicForm && fileEntryId > 0  %>">
 							<aui:a 
 								id="<%=String.valueOf(dossierPartId) %>"
-								dossier-part="<%=String.valueOf(dossierPartId) %>"
+								dossier="<%=String.valueOf(dossierId) %>"
+								dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
 								dossier-file="<%=String.valueOf(dossierFileId) %>"
+								file-group="<%=String.valueOf(fileGroupId) %>"
 								group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
 								group-name="<%=groupName %>"
 								href="javascript:void(0);" 
-								label="declaration-online" 
-								cssClass="opencps dossiermgt part-file-ctr declaration-online"
-								onClick='<%=renderResponse.getNamespace() + "declarationOnline(this)" %>'
-								title="declaration-online"
+								label="view-form" 
+								cssClass="label opencps dossiermgt part-file-ctr view-form"
+								title="view-form"
 							/>
 						</c:when>
 						<c:otherwise>
@@ -361,25 +450,27 @@
 										group-name="<%=groupName %>"
 										href="javascript:void(0);" 
 										label="view-attachment" 
-										cssClass="opencps dossiermgt part-file-ctr view-attachment"
+										cssClass="label opencps dossiermgt part-file-ctr view-attachment"
 										
 										title="view-attachment"
 									/>
 								</c:when>
 								<c:otherwise>
-									<aui:a 
-										id="<%=String.valueOf(dossierPartId) %>"
-										dossier="<%=String.valueOf(dossierId) %>"
-										dossier-part="<%=String.valueOf(dossierPartId) %>"
-										dossier-file="<%=String.valueOf(dossierFileId) %>"
-										file-group="<%=String.valueOf(fileGroupId) %>"
-										group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
-										group-name="<%=groupName %>"
-										href="javascript:void(0);" 
-										label="upload-file" 
-										cssClass="opencps dossiermgt part-file-ctr upload-dossier-file"
-										title="upload-file"
-									/>
+									<c:if test="<%=isEditDossier %>">
+										<aui:a 
+											id="<%=String.valueOf(dossierPartId) %>"
+											dossier="<%=String.valueOf(dossierId) %>"
+											dossier-part="<%=String.valueOf(dossierPartId) %>"
+											dossier-file="<%=String.valueOf(dossierFileId) %>"
+											file-group="<%=String.valueOf(fileGroupId) %>"
+											group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+											group-name="<%=groupName %>"
+											href="javascript:void(0);" 
+											label="upload-file" 
+											cssClass="label opencps dossiermgt part-file-ctr upload-dossier-file"
+											title="upload-file"
+										/>
+									</c:if>
 								</c:otherwise>
 							</c:choose>
 						</c:otherwise>
@@ -388,7 +479,19 @@
 				<td width="10%" align="right">
 					<span class="dossier-file-counter">
 						<span class="counter-value" title="version">
-							<%=version %>
+							<aui:a 
+								id="<%=String.valueOf(dossierPartId) %>"
+								dossier="<%=String.valueOf(dossierId) %>"
+								dossier-part="<%=String.valueOf(isChildDossierPart ? childDossierPartId : dossierPartId) %>"
+								dossier-file="<%=String.valueOf(dossierFileId) %>"
+								file-group="<%=String.valueOf(fileGroupId) %>"
+								group-dossier-part="<%=String.valueOf(groupDossierPartId) %>"
+								group-name="<%=groupName %>"
+								href="javascript:void(0);" 
+								cssClass="view-version"
+							>
+								<%=version %>
+							</aui:a>
 						</span>
 					</span>
 				</td>

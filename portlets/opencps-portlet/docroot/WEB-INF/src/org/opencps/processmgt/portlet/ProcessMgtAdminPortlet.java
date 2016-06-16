@@ -154,8 +154,8 @@ public class ProcessMgtAdminPortlet extends MVCPortlet {
 
 		String actionName = ParamUtil.getString(actionRequest, "actionName");
 
-		boolean assignUser = ParamUtil.getBoolean(actionRequest, "assignUserCheckbox");
-
+		boolean assignUser = ParamUtil.getBoolean(actionRequest, "assignUser");
+		
 		long actionUserId = ParamUtil.getLong(actionRequest, "actionUserId");
 
 		boolean requestPayment =
@@ -242,7 +242,7 @@ public class ProcessMgtAdminPortlet extends MVCPortlet {
 				}
 
 				for (WorkflowOutput output : workflowOutputs) {
-					if (output.getWorkflowOutputId() >= 0) {
+					if (output.getWorkflowOutputId() > 0) {
 						WorkflowOutputLocalServiceUtil.updateWorkflowOutput(
 						    output.getWorkflowOutputId(),
 						    output.getDossierPartId(),
