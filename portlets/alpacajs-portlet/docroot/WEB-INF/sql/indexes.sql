@@ -1,0 +1,1 @@
+create index IX_ABBCA0ED on opencps_dictcollection (groupId);

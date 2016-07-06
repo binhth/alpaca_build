@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="com.liferay"
+		module="alpacajs-portlet"
+		revision="working@localhost.localdomain"
+		conf="default"
+		confs="default, internal, provided, runtime, test"
+		date="20160706113803"/>
+	<dependencies>
+		<module organisation="org.json" name="json">
+			<revision name="20160212" status="release" pubdate="20160214081631" resolver="liferay-public" artresolver="default" homepage="https://github.com/douglascrockford/JSON-java" downloaded="true" searched="true" default="false" conf="default, compile, runtime, master" position="0">
+				<license name="The JSON License" url="http://json.org/license.html"/>
+				<metadata-artifact status="successful" details="" size="5670" time="3153" location="/home/binhth/MEGAsync/SDK/git/alpacajs/alpaca_build/.ivy/cache/org.json/json/ivy-20160212.xml" searched="true" original-local-location="/home/binhth/MEGAsync/SDK/git/alpacajs/alpaca_build/.ivy/cache/org.json/json/ivy-20160212.xml.original" origin-is-local="false" origin-location="http://cdn.repository.liferay.com/nexus/content/groups/public/org/json/json/20160212/json-20160212.pom"/>
+				<caller organisation="com.liferay" name="alpacajs-portlet" conf="default" rev="20160212" rev-constraint-default="20160212" rev-constraint-dynamic="20160212" callerrev="working@localhost.localdomain"/>
+				<artifacts>
+					<artifact name="json" type="bundle" ext="jar" status="successful" details="" size="49176" time="2704" location="/home/binhth/MEGAsync/SDK/git/alpacajs/alpaca_build/.ivy/cache/org.json/json/bundles/json-20160212.jar">
+						<origin-location is-local="false" location="http://cdn.repository.liferay.com/nexus/content/groups/public/org/json/json/20160212/json-20160212.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>
