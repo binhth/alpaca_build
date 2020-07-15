@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script type="text/javascript">
+      var urlParams = new URLSearchParams(window.location.search);
+      console.log(urlParams.get('token'));
+      console.log(urlParams.get('domain'));
+      document.getElementById("iframe").src = urlParams.get('domain');
+    </script>
+  </head>
+  <body style="margin: 0;">
+    <iframe id="iframe" style="height: 100vh;" width="100%" frameborder="0" scrolling="no" src=""></iframe>
+  </body>
+</html>
